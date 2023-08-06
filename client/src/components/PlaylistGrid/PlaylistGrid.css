@@ -1,22 +1,28 @@
 .playlist-grid {
-    display: grid;
+    display: flex;
+    flex-direction: column;
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: 16px;
+    gap: 5px;
+    background-color: white;
   }
   
   .playlist-item {
     display: flex;
-    flex-direction: column;
-    align-items: center;
+    flex-direction: row;
     cursor: pointer;
   }
   
   .playlist-item img {
-    width: 160px;
-    height: 160px;
+    width: 50px;
+    height: 50px;
     object-fit: cover;
     border-radius: 8px;
     margin-bottom: 8px;
+  }
+  .playlist-name {
+    padding-top: 20px;
+    padding-left: 3px;
+    
   }
   
   .playlist-item span {

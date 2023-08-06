@@ -1,23 +1,27 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './Search.css';
-import PlaylistGrid from './PlaylistGrid';
+import PlaylistGrid from './PlaylistGrid/PlaylistGrid';
 import Slider from './Slider';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import FilteredTracks from './FilteredTracks';
+import LoginScreen from './LoginScreen/LoginScreen';
 
 const Search = ({
   accessToken,
   userPlaylists,
-  filteredPlaylists,
-  handleSearchChange,
   handlePlaylistSelect,
   selectedPlaylistTracks,
   setSelectedPlaylistTracks,
   handleLogin,
+  setFilteredTracks, // Receive the setter function as a prop
 }) => {
   const [selectedPlaylists, setSelectedPlaylists] = useState([]);
   const [energyRange, setEnergyRange] = useState({ min: 0, max: 10 });
   const [danceabilityRange, setDanceabilityRange] = useState({ min: 0, max: 10 });
   const [tempoRange, setTempoRange] = useState({ min: 0, max: 200 });
+
+  const navigate = useNavigate();
 
   const togglePlaylistSelection = (playlistId) => {
     if (selectedPlaylists.includes(playlistId)) {
@@ -31,6 +35,21 @@ const Search = ({
       setSelectedPlaylists((prevSelectedPlaylists) => [...prevSelectedPlaylists, playlistId]);
       handlePlaylistSelect(playlistId);
     }
+
+    // Remove or add the selected playlist from the filteredPlaylists
+    setFilteredPlaylists((prevFilteredPlaylists) =>
+      prevFilteredPlaylists.filter((playlist) => playlist.id !== playlistId)
+    );
+  };
+
+  const [filteredPlaylists, setFilteredPlaylists] = useState(userPlaylists);
+
+  const handleSearchChange = (event) => {
+    const searchTerm = event.target.value.toLowerCase();
+    const filtered = userPlaylists.filter((playlist) =>
+      playlist.name.toLowerCase().includes(searchTerm)
+    );
+    setFilteredPlaylists(filtered);
   };
 
   const handleContinue = () => {
@@ -54,12 +73,11 @@ const Search = ({
         // Filter selected tracks based on energy, danceability, and tempo ranges here
         const filteredTracks = selectedPlaylistTracks.filter((track, index) => {
           const { energy, danceability, tempo } = audioFeatures[index];
-          console.log(audioFeatures[index])
           return (
-            energy >= energyRange.min * .1 &&
-            energy <= energyRange.max * .1 &&
-            danceability >= danceabilityRange.min * .1 &&
-            danceability <= danceabilityRange.max * .1 &&
+            energy >= energyRange.min * 0.1 &&
+            energy <= energyRange.max * 0.1 &&
+            danceability >= danceabilityRange.min * 0.1 &&
+            danceability <= danceabilityRange.max * 0.1 &&
             tempo >= tempoRange.min &&
             tempo <= tempoRange.max
           );
@@ -67,12 +85,23 @@ const Search = ({
   
         console.log('Filtered tracks:', filteredTracks);
         // Optionally, you can set the filtered tracks to the state or do other operations with them.
+
+    // Set the filtered tracks to the state in the parent component (SpotifyApp.js)
+    setFilteredTracks(filteredTracks);
+
+    // Navigate to the FilteredTracks component with the filteredTracks as state
+    navigate('/filtered', { state: { filteredTracks } });
       })
       .catch((error) => {
         console.error('Error fetching audio features:', error);
       });
   };
   
+
+  // Initialize filteredPlaylists with userPlaylists by default
+  useEffect(() => {
+    setFilteredPlaylists(userPlaylists);
+  }, [userPlaylists]);
 
   return (
     <div>
@@ -94,11 +123,11 @@ const Search = ({
                 <div className="selected-playlists-container">
                   <h2>Selected Playlists</h2>
                   <div className="selected-playlists">
-                    {selectedPlaylists.map((playlistId) => {
+                    {selectedPlaylists.map((playlistId, index) => {
                       const playlist = userPlaylists.find((playlist) => playlist.id === playlistId);
                       return (
                         <div
-                          key={playlist.id}
+                          key={`${playlist.id}-${index}`}
                           className="selected-playlist-item"
                           onClick={() => togglePlaylistSelection(playlist.id)}
                         >
@@ -114,8 +143,8 @@ const Search = ({
                 <div className="selected-tracks-container">
                   <h2>Selected Tracks</h2>
                   <ul>
-                    {selectedPlaylistTracks.map((track) => (
-                      <li key={track.id}>{track.name}</li>
+                    {selectedPlaylistTracks.map((track, index) => (
+                      <li key={`${track.id}-${index}`}>{track.name}</li>
                     ))}
                   </ul>
                 </div>
@@ -124,27 +153,26 @@ const Search = ({
                 <div className="filter-container">
                   <h2>Filter Tracks</h2>
                   <Slider
-  label="Energy"
-  min={0}
-  max={10}
-  step={1}
-  onChange={(value) => setEnergyRange({ min: value.minValue, max: value.maxValue })}
-/>
-<Slider
-  label="Danceability"
-  min={0}
-  max={10}
-  step={1}
-  onChange={(value) => setDanceabilityRange({ min: value.minValue, max: value.maxValue })}
-/>
-<Slider
-  label="Tempo"
-  min={0}
-  max={200}
-  step={5}
-  onChange={(value) => setTempoRange({ min: value.minValue, max: value.maxValue })}
-/>
-
+                    label="Energy"
+                    min={0}
+                    max={10}
+                    step={1}
+                    onChange={(value) => setEnergyRange({ min: value.minValue, max: value.maxValue })}
+                  />
+                  <Slider
+                    label="Danceability"
+                    min={0}
+                    max={10}
+                    step={1}
+                    onChange={(value) => setDanceabilityRange({ min: value.minValue, max: value.maxValue })}
+                  />
+                  <Slider
+                    label="Tempo"
+                    min={0}
+                    max={200}
+                    step={5}
+                    onChange={(value) => setTempoRange({ min: value.minValue, max: value.maxValue })}
+                  />
                 </div>
               )}
             </div>
@@ -152,10 +180,9 @@ const Search = ({
           {selectedPlaylists.length > 0 && <button onClick={handleContinue}>Continue</button>}
         </div>
       ) : (
-        <div>
-          <h1>Please log in with your Spotify account to continue</h1>
-          <button onClick={handleLogin}>Log in with Spotify</button>
-        </div>
+        <LoginScreen 
+        handleLogin={handleLogin}
+        />
       )}
     </div>
   );

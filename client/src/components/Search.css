@@ -97,15 +97,21 @@ a:hover {
   flex: 1;
   min-width: 300px;
   overflow-y: auto;
+  max-height: 80vh;
+  overflow-y: scroll;
 }
 
 .selected-playlists-container {
   background-color: #f0f0f0;
   padding: 10px;
+  max-height: 80vh;
+  overflow-y: scroll;
 }
 
 .selected-tracks-container {
   margin-top: 20px;
+  max-height: 80vh;
+  overflow-y: scroll;
 }
 
 .selected-tracks-container ul {
@@ -119,3 +125,43 @@ a:hover {
 }
 
 /* ... existing styles ... */
+.playlist-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 10px;
+}
+
+.playlist-item {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  background-color: #f0f0f0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.playlist-item:hover {
+  background-color: #e0e0e0;
+}
+
+.playlist-cover {
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-right: 10px;
+}
+
+.playlist-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.spotify-logo {
+  width: 24px;
+  height: 24px;
+  margin-left: 10px;
+}
