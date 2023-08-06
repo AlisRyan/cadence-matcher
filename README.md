@@ -9,4 +9,4 @@ Created a website using React and the Spotify API so that you can cater
         to form your custom running playlist. 
 
 
-**Currently under construction: All functionality is completed but it's frontend design is unfinished**
+**Currently under construction: All functionality is completed but the frontend design is unfinished**
