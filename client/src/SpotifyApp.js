@@ -19,6 +19,8 @@ const SpotifyApp = () => {
   const [selectedPlaylists, setSelectedPlaylists] = useState([]);
   const spotifyClientId = "CLIENT_ID"; // Replace with your Spotify Client ID
   const [filteredTracks, setFilteredTracks] = useState([]); // Create a state to store the filtered tracks
+  const [userId, setUserId] = useState(null); // State to store user ID
+
 
   useEffect(() => {
     // Check if there's a Spotify access token in the URL
@@ -28,10 +30,26 @@ const SpotifyApp = () => {
     if (accessToken) {
       setAccessToken(accessToken);
 
+      // Fetch user's ID
+      getUserId(accessToken);
+
       // Fetch user's playlists
       getPlaylists(accessToken);
     }
   }, []);
+
+  const getUserId = (token) => {
+    axios
+      .get("https://api.spotify.com/v1/me", {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then((response) => {
+        setUserId(response.data.id);
+      })
+      .catch((error) => {
+        console.error("Error fetching user ID:", error);
+      });
+  };
 
   const handlePlaylistSelect = (playlistId) => {
     // Check if the playlistId is already selected
@@ -48,17 +66,65 @@ const SpotifyApp = () => {
         playlistId,
       ]);
       getPlaylistTracks(playlistId, (tracks) => {
+        const newTracks = tracks.filter(
+          (track) =>
+            !selectedPlaylistTracks.some(
+              (selectedTrack) =>
+                selectedTrack.id === track.id && selectedTrack.playlistId === playlistId
+            )
+        );
         setSelectedPlaylistTracks((prevSelectedTracks) => [
           ...prevSelectedTracks,
-          ...tracks.map((track) => ({ ...track, playlistId })),
+          ...newTracks.map((track) => ({ ...track, playlistId })),
         ]);
       });
     }
   };
+  
 
-  const getPlaylists = (token) => {
+  const createPlaylistWithTracks = (token, userId, playlistName, trackUris) => {
     axios
-      .get("https://api.spotify.com/v1/me/playlists", {
+      .post(
+        `https://api.spotify.com/v1/users/${userId}/playlists`,
+        {
+          name: playlistName,
+          public: true,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      )
+      .then((response) => {
+        const playlistId = response.data.id;
+        addTracksToPlaylist(token, playlistId, trackUris);
+      })
+      .catch((error) => {
+        console.error("Error creating playlist:", error);
+      });
+  };
+
+  const addTracksToPlaylist = (token, playlistId, trackUris) => {
+    axios
+      .post(
+        `https://api.spotify.com/v1/playlists/${playlistId}/tracks`,
+        {
+          uris: trackUris,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      )
+      .then(() => {
+        // Playlist created and tracks added successfully
+      })
+      .catch((error) => {
+        console.error("Error adding tracks to playlist:", error);
+      });
+  };
+
+  const getPlaylists = (token, url = "https://api.spotify.com/v1/me/playlists") => {
+    axios
+      .get(url, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((response) => {
@@ -66,32 +132,47 @@ const SpotifyApp = () => {
           id: playlist.id,
           name: playlist.name,
           coverUrl: playlist.images.length > 0 ? playlist.images[0].url : null,
+          link: playlist.external_urls.spotify,
         }));
-
+  
         // Fetch the user's liked songs playlist separately
-        axios
-          .get("https://api.spotify.com/v1/me/tracks", {
-            headers: { Authorization: `Bearer ${token}` },
-          })
-          .then((response) => {
-            const likedSongsPlaylist = {
-              id: "liked_songs", // A unique ID to represent the liked songs playlist
-              name: "Liked Songs", // Name for display
-              coverUrl: null, // You can add a cover image URL if you have one
-            };
-            playlists.unshift(likedSongsPlaylist); // Add the liked songs playlist at the beginning
-
-            setUserPlaylists(playlists);
-          })
-          .catch((error) => {
-            console.error("Error fetching liked songs:", error);
-            setUserPlaylists(playlists); // Still update the user playlists even if fetching liked songs failed
-          });
+        if (url === "https://api.spotify.com/v1/me/playlists") {
+          axios
+            .get("https://api.spotify.com/v1/me/tracks", {
+              headers: { Authorization: `Bearer ${token}` },
+            })
+            .then((response) => {
+              const likedSongsPlaylist = {
+                id: "liked_songs", // A unique ID to represent the liked songs playlist
+                name: "Liked Songs", // Name for display
+                coverUrl: null, // You can add a cover image URL if you have one
+              };
+              playlists.unshift(likedSongsPlaylist); // Add the liked songs playlist at the beginning
+            })
+            .catch((error) => {
+              console.error("Error fetching liked songs:", error);
+            });
+        }
+  
+        setUserPlaylists((prevPlaylists) => {
+          // Filter out playlists that are already in the state
+          const newPlaylists = playlists.filter(
+            (playlist) => !prevPlaylists.some((prevPlaylist) => prevPlaylist.id === playlist.id)
+          );
+          return [...prevPlaylists, ...newPlaylists];
+        });
+  
+        // Check for pagination
+        if (response.data.next) {
+          getPlaylists(token, response.data.next);
+        }
       })
       .catch((error) => {
         console.error("Error fetching user playlists:", error);
       });
   };
+  
+  
 
   const getPlaylistTracks = (playlistId, callback) => {
     if (playlistId === "liked_songs") {
@@ -135,7 +216,7 @@ const SpotifyApp = () => {
 
   const handleLogin = () => {
     const redirectUri = "http://localhost:3000";
-    window.location.href = `https://accounts.spotify.com/authorize?client_id=${spotifyClientId}&response_type=token&redirect_uri=${redirectUri}&scope=user-read-private%20playlist-read-private%20user-library-read`;
+    window.location.href = `https://accounts.spotify.com/authorize?client_id=${spotifyClientId}&response_type=token&redirect_uri=${redirectUri}&scope=user-read-private%20playlist-read-private%20playlist-read-collaborative%20user-library-read%20playlist-modify-public`;
   };
 
   const handleLogout = () => {
@@ -163,6 +244,8 @@ const SpotifyApp = () => {
               setSelectedPlaylistTracks={setSelectedPlaylistTracks}
               handleLogin={handleLogin}
               setFilteredTracks={setFilteredTracks} // Pass the setFilteredTracks function here
+              userId={userId}
+              createPlaylistWithTracks={createPlaylistWithTracks}
             />
           }
         />

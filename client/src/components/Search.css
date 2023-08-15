@@ -58,11 +58,11 @@ a:hover {
   cursor: pointer;
 }
 
-.selected-playlists {
+/* .selected-playlists {
   display: flex;
   flex-wrap: wrap;
   gap: 16px;
-}
+} */
 
 .selected-playlist-item {
   display: flex;
