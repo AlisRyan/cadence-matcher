@@ -3,13 +3,12 @@ import {
   BrowserRouter as Router,
   Route,
   Routes,
-  Link,
-  useLocation,
 } from "react-router-dom";
 import axios from "axios";
-import "./SpotifyApp.css";
 import { LoginCallback, Search } from "./components";
 import FilteredTracks from "./components/FilteredTracks";
+import { Box } from "@chakra-ui/react";
+import CustomButton from "./components/CustomButton";
 
 const SpotifyApp = () => {
   const [accessToken, setAccessToken] = useState(null);
@@ -20,7 +19,6 @@ const SpotifyApp = () => {
   const spotifyClientId = "CLIENT_ID"; // Replace with your Spotify Client ID
   const [filteredTracks, setFilteredTracks] = useState([]); // Create a state to store the filtered tracks
   const [userId, setUserId] = useState(null); // State to store user ID
-
 
   useEffect(() => {
     // Check if there's a Spotify access token in the URL
@@ -70,7 +68,8 @@ const SpotifyApp = () => {
           (track) =>
             !selectedPlaylistTracks.some(
               (selectedTrack) =>
-                selectedTrack.id === track.id && selectedTrack.playlistId === playlistId
+                selectedTrack.id === track.id &&
+                selectedTrack.playlistId === playlistId
             )
         );
         setSelectedPlaylistTracks((prevSelectedTracks) => [
@@ -80,49 +79,11 @@ const SpotifyApp = () => {
       });
     }
   };
-  
 
-  const createPlaylistWithTracks = (token, userId, playlistName, trackUris) => {
-    axios
-      .post(
-        `https://api.spotify.com/v1/users/${userId}/playlists`,
-        {
-          name: playlistName,
-          public: true,
-        },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      )
-      .then((response) => {
-        const playlistId = response.data.id;
-        addTracksToPlaylist(token, playlistId, trackUris);
-      })
-      .catch((error) => {
-        console.error("Error creating playlist:", error);
-      });
-  };
-
-  const addTracksToPlaylist = (token, playlistId, trackUris) => {
-    axios
-      .post(
-        `https://api.spotify.com/v1/playlists/${playlistId}/tracks`,
-        {
-          uris: trackUris,
-        },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      )
-      .then(() => {
-        // Playlist created and tracks added successfully
-      })
-      .catch((error) => {
-        console.error("Error adding tracks to playlist:", error);
-      });
-  };
-
-  const getPlaylists = (token, url = "https://api.spotify.com/v1/me/playlists") => {
+  const getPlaylists = (
+    token,
+    url = "https://api.spotify.com/v1/me/playlists"
+  ) => {
     axios
       .get(url, {
         headers: { Authorization: `Bearer ${token}` },
@@ -134,7 +95,7 @@ const SpotifyApp = () => {
           coverUrl: playlist.images.length > 0 ? playlist.images[0].url : null,
           link: playlist.external_urls.spotify,
         }));
-  
+
         // Fetch the user's liked songs playlist separately
         if (url === "https://api.spotify.com/v1/me/playlists") {
           axios
@@ -153,15 +114,18 @@ const SpotifyApp = () => {
               console.error("Error fetching liked songs:", error);
             });
         }
-  
+
         setUserPlaylists((prevPlaylists) => {
           // Filter out playlists that are already in the state
           const newPlaylists = playlists.filter(
-            (playlist) => !prevPlaylists.some((prevPlaylist) => prevPlaylist.id === playlist.id)
+            (playlist) =>
+              !prevPlaylists.some(
+                (prevPlaylist) => prevPlaylist.id === playlist.id
+              )
           );
           return [...prevPlaylists, ...newPlaylists];
         });
-  
+
         // Check for pagination
         if (response.data.next) {
           getPlaylists(token, response.data.next);
@@ -171,10 +135,9 @@ const SpotifyApp = () => {
         console.error("Error fetching user playlists:", error);
       });
   };
-  
-  
 
   const getPlaylistTracks = (playlistId, callback) => {
+    console.log("hey");
     if (playlistId === "liked_songs") {
       // Special case for the user's liked songs playlist
       axios
@@ -183,7 +146,15 @@ const SpotifyApp = () => {
         })
         .then((response) => {
           const tracks = response.data.items.map((item) => item.track);
-          callback(tracks);
+          const tracksComp = tracks.map((track) => ({
+            id: track.id,
+            name: track.name,
+            coverUrl:
+              track.album.images.length > 0 ? track.album.images[0].url : null,
+            uri: track.uri,
+            link: track.external_urls.spotify,
+          }));
+          callback(tracksComp);
         })
         .catch((error) => {
           console.error("Error fetching liked songs:", error);
@@ -197,7 +168,15 @@ const SpotifyApp = () => {
         })
         .then((response) => {
           const tracks = response.data.items.map((item) => item.track);
-          callback(tracks);
+          const tracksComp = tracks.map((track) => ({
+            id: track.id,
+            name: track.name,
+            coverUrl:
+              track.album.images.length > 0 ? track.album.images[0].url : null,
+            uri: track.uri,
+            link: track.external_urls.spotify,
+          }));
+          callback(tracksComp);
         })
         .catch((error) => {
           console.error("Error fetching playlist tracks:", error);
@@ -216,7 +195,7 @@ const SpotifyApp = () => {
 
   const handleLogin = () => {
     const redirectUri = "http://localhost:3000";
-    window.location.href = `https://accounts.spotify.com/authorize?client_id=${spotifyClientId}&response_type=token&redirect_uri=${redirectUri}&scope=user-read-private%20playlist-read-private%20playlist-read-collaborative%20user-library-read%20playlist-modify-public`;
+    window.location.href = `https://accounts.spotify.com/authorize?client_id=${spotifyClientId}&response_type=token&redirect_uri=${redirectUri}&scope=user-read-private%20playlist-read-private%20playlist-read-collaborative%20user-library-read%20playlist-modify-public%20playlist-modify-private`;
   };
 
   const handleLogout = () => {
@@ -225,11 +204,23 @@ const SpotifyApp = () => {
 
   return (
     <Router>
-      <nav>
-        <Link to="/">Home</Link>
-        {accessToken && <button onClick={handleLogout}>Logout</button>}{" "}
-        {/* Show Logout button if accessToken is present */}
-      </nav>
+      {accessToken && (
+        <Box
+          height="60px"
+          top="0"
+          left="0"
+          right="0"
+          zIndex="999"
+          bg="rgb(255, 255, 255, .4)"
+          boxShadow="0 0 1em rgba(0,0,0,.25)"
+          alignItems="center"
+          justifyContent="flex-end"
+          display="flex"
+          position="fixed"
+        >
+          <CustomButton click={handleLogout} label={"Logout"} />
+        </Box>
+      )}{" "}
       <Routes>
         <Route
           path="/"
@@ -245,14 +236,20 @@ const SpotifyApp = () => {
               handleLogin={handleLogin}
               setFilteredTracks={setFilteredTracks} // Pass the setFilteredTracks function here
               userId={userId}
-              createPlaylistWithTracks={createPlaylistWithTracks}
             />
           }
         />
         <Route path="/callback" element={<LoginCallback />} />
         <Route
           path="/filtered"
-          element={<FilteredTracks filteredTracks={filteredTracks} />}
+          element={
+            <FilteredTracks
+              filteredTracks={filteredTracks}
+              accessToken={accessToken}
+              userId={userId}
+              handleLogin={handleLogin}
+            />
+          }
         />
       </Routes>
     </Router>
