@@ -1,12 +1,10 @@
-# cadence-matcher
+# Cadence Matcher!
+### Overview
+Do you ever want to match your music to your run, but the default Spotify playlists don't fit your style? Then this application made with the Spotify API, Javascript, React.js, and Chakra UI is perfect for you! 
 
-Created a website using React and the Spotify API so that you can cater 
-        your playlists to your running cadence. 
-        It's been shown that running with music at a faster
-        tempo not only encourages you to run faster, but also
-        prevent injury. This website allows you to also be able to customize the level of
-        danceability and energy that you want all the songs to be at 
-        to form your custom running playlist. 
+### How do I run it?
 
+First, fork and clone the repo, and then set up a Spotify Developer Account [here](https://developer.spotify.com). Then, create a new application, and take the client id from that application and replace the placeholder on line 16 of `src/SpotifyApp.js` with your new client id. Then run `npm start` and you are good to go!
 
-**Currently under construction: All functionality is completed but the frontend design is unfinished**
+### How do I use it?
+Once you sign in with your Spotify account, you'll be shown all of your playlists, and you can select the ones that you want tracks drawn from to make your new running playlist. Then, use the sliders to customize the tracks that will be added, so that their tempo and energy fit your running mood best. This way, all run you'll be listening to music that not only you enjoy because it came from your playlists, but it'll be perfectly curated to your running needs. MFinally, continue on and enter a playlist name and privacy settings, and we'll add the playlist straight to your library! 
