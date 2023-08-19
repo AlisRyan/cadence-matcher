@@ -1,6 +1,6 @@
-import React from 'react';
+import React from "react";
 import MultiRangeSlider from "multi-range-slider-react";
-import { Text } from '@chakra-ui/react';
+import { Text } from "@chakra-ui/react";
 
 const Slider = ({ label, min, max, onChange, step }) => {
   return (
@@ -13,12 +13,12 @@ const Slider = ({ label, min, max, onChange, step }) => {
         step={step}
         minValue={min}
         maxValue={max}
-        onInput={(values) => onChange(values)} // Call the onChange prop with the new value
+        onInput={(values) => onChange(values)}
         boxShadow="false"
         label="false"
         border="false"
         ruler="false"
-        style={{border:'none', boxShadow:'none'}}
+        style={{ border: "none", boxShadow: "none" }}
       />
     </div>
   );

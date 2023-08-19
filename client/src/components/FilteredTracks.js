@@ -28,7 +28,9 @@ const FilteredTracks = ({
       return;
     }
 
-    const trackUris = filteredTracks.map((track) => track.uri);
+    const uniqueTrackUris = [
+      ...new Set(filteredTracks.map((track) => track.uri)),
+    ]; // Get unique track URIs
     axios
       .post(
         `https://api.spotify.com/v1/users/${userId}/playlists`,
@@ -43,11 +45,11 @@ const FilteredTracks = ({
       .then((response) => {
         const playlistId = response.data.id;
 
-        // Add tracks to the created playlist
+        // Add unique tracks to the created playlist
         axios.post(
           `https://api.spotify.com/v1/playlists/${playlistId}/tracks`,
           {
-            uris: trackUris,
+            uris: uniqueTrackUris,
           },
           {
             headers: { Authorization: `Bearer ${accessToken}` },
@@ -69,55 +71,63 @@ const FilteredTracks = ({
         <Center>
           <Box
             marginTop="60px"
-            height="90vh"
+            minHeight="90vh"
+            minWidth="480px"
             width="80vw"
             backgroundColor="rgb(255, 255, 255, .8)"
             borderRadius="3em"
             boxShadow="-1em 1em 1em rgba(0,0,0,.25)"
           >
-            <HStack>
-              <VStack>
-                <Heading paddingY="60px">Filtered tracks</Heading>
-                <VStack maxHeight="60vh" overflowY="scroll" marginLeft="30px">
-                  {filteredTracks.map((track) => {
-                    return (
-                      <PlaylistGrid
-                        playlist={track}
-                        handlePlaylistSelect={nothing}
-                      />
-                    );
-                  })}
+            <VStack>
+              <Heading paddingY="50px">Create Your Playlist!</Heading>
+              <HStack
+                flexDirection={{
+                  base: "column-reverse", // Reversed order on small screens
+                  md: "row", // Original order on medium screens and larger
+                }}
+              >
+                <VStack>
+                  <VStack maxHeight="60vh" overflowY="scroll" marginLeft="30px">
+                    {filteredTracks.map((track) => {
+                      return (
+                        <PlaylistGrid
+                          playlist={track}
+                          handlePlaylistSelect={nothing}
+                        />
+                      );
+                    })}
+                  </VStack>
                 </VStack>
-              </VStack>
-              <VStack width="50vw" justifyContent="space-evenly">
-                <Input
-                  focusBorderColor="black"
-                  type="text"
-                  variant="flushed"
-                  placeholder="Playlist Name"
-                  value={playlistName}
-                  onChange={(e) => setPlaylistName(e.target.value)}
-                  marginX="5%"
-                  marginBottom="5vh"
-                  width="90%"
-                />
-                <Checkbox
-                  defaultChecked
-                  colorScheme="blackAlpha"
-                  size="lg"
-                  outlineColor="black"
-                  marginBottom="5vh"
-                  isChecked={isPublic}
-                  onChange={() => setIsPublic(!isPublic)}
-                >
-                  Public
-                </Checkbox>
-                <CustomButton
-                  click={handleCreatePlaylist}
-                  label={"Create playlist"}
-                />
-              </VStack>
-            </HStack>
+                <VStack width="50vw" justifyContent="space-evenly">
+                  <Input
+                    focusBorderColor="black"
+                    type="text"
+                    variant="flushed"
+                    placeholder="Playlist Name"
+                    value={playlistName}
+                    onChange={(e) => setPlaylistName(e.target.value)}
+                    marginX="5%"
+                    marginBottom="5vh"
+                    width="90%"
+                  />
+                  <Checkbox
+                    defaultChecked
+                    colorScheme="blackAlpha"
+                    size="lg"
+                    outlineColor="black"
+                    marginBottom="5vh"
+                    isChecked={isPublic}
+                    onChange={() => setIsPublic(!isPublic)}
+                  >
+                    Public
+                  </Checkbox>
+                  <CustomButton
+                    click={handleCreatePlaylist}
+                    label={"Create playlist"}
+                  />
+                </VStack>
+              </HStack>
+            </VStack>
           </Box>
         </Center>
       ) : (

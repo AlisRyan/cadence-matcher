@@ -1,11 +1,8 @@
 import React, { useState, useEffect } from "react";
-import {
-  BrowserRouter as Router,
-  Route,
-  Routes,
-} from "react-router-dom";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import axios from "axios";
-import { LoginCallback, Search } from "./components";
+import LoginCallback from "./components/LoginCallback";
+import Search from "./components/Search";
 import FilteredTracks from "./components/FilteredTracks";
 import { Box } from "@chakra-ui/react";
 import CustomButton from "./components/CustomButton";
@@ -137,7 +134,6 @@ const SpotifyApp = () => {
   };
 
   const getPlaylistTracks = (playlistId, callback) => {
-    console.log("hey");
     if (playlistId === "liked_songs") {
       // Special case for the user's liked songs playlist
       axios
@@ -234,7 +230,7 @@ const SpotifyApp = () => {
               selectedPlaylistTracks={selectedPlaylistTracks}
               setSelectedPlaylistTracks={setSelectedPlaylistTracks}
               handleLogin={handleLogin}
-              setFilteredTracks={setFilteredTracks} // Pass the setFilteredTracks function here
+              setFilteredTracks={setFilteredTracks}
               userId={userId}
             />
           }

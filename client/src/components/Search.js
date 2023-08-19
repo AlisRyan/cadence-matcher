@@ -4,7 +4,7 @@ import Slider from "./Slider";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import LoginScreen from "./LoginScreen";
-import { HStack, Heading, Input, VStack, Checkbox } from "@chakra-ui/react";
+import { HStack, Heading, Input, VStack } from "@chakra-ui/react";
 import {
   Tabs,
   TabList,
@@ -23,12 +23,15 @@ const Search = ({
   selectedPlaylistTracks,
   setSelectedPlaylistTracks,
   handleLogin,
-  setFilteredTracks, // Receive the setter function as a prop
+  setFilteredTracks,
   userId,
 }) => {
   const [selectedPlaylists, setSelectedPlaylists] = useState([]);
   const [energyRange, setEnergyRange] = useState({ min: 0, max: 10 });
-  const [danceabilityRange, setDanceabilityRange] = useState({ min: 0, max: 10 });
+  const [danceabilityRange, setDanceabilityRange] = useState({
+    min: 0,
+    max: 10,
+  });
 
   const [tempoRange, setTempoRange] = useState({ min: 0, max: 200 });
   const [valenceRange, setValenceRange] = useState({ min: 0, max: 10 });
@@ -82,8 +85,7 @@ const Search = ({
 
         // Filter selected tracks based on energy, danceability, and tempo ranges here
         const filteredTracks = selectedPlaylistTracks.filter((track, index) => {
-          const { energy, danceability, tempo, loudness, valence } =
-            audioFeatures[index];
+          const { energy, danceability, tempo, valence } = audioFeatures[index];
           return (
             energy >= energyRange.min * 0.1 &&
             energy <= energyRange.max * 0.1 &&
@@ -106,9 +108,9 @@ const Search = ({
         // Navigate to the FilteredTracks page
         navigate("/filtered", {
           state: {
-            filteredTracks: filteredTracks, // Pass the filteredTracks array
-            accessToken: accessToken, // Pass the accessToken
-            userId: userId, // Pass the userId
+            filteredTracks: filteredTracks,
+            accessToken: accessToken,
+            userId: userId,
           },
         });
       })
@@ -127,11 +129,12 @@ const Search = ({
         <Center>
           <VStack
             marginTop="60px"
-            height="90vh"
+            minHeight="90vh"
+            minWidth="480px"
             width="80vw"
-            backgroundColor="rgb(255, 255, 255, .8)"
+            backgroundColor="rgba(255, 255, 255, 0.8)"
             borderRadius="3em"
-            boxShadow="-1em 1em 1em rgba(0,0,0,.25)"
+            boxShadow="-1em 1em 1em rgba(0, 0, 0, .25)"
           >
             <Heading paddingY="20px">Cadence Matcher</Heading>
             <div className="search">
@@ -159,51 +162,57 @@ const Search = ({
                       onChange={handleSearchChange}
                     />
                     <VStack maxHeight="40vh" overflowY="scroll">
-                      {filteredPlaylists.map((playlist) => {
-                        return (
-                          <PlaylistGrid
-                            playlist={playlist}
-                            handlePlaylistSelect={togglePlaylistSelection}
-                          />
-                        );
-                      })}
+                      {filteredPlaylists.map((playlist) => (
+                        <PlaylistGrid
+                          playlist={playlist}
+                          handlePlaylistSelect={togglePlaylistSelection}
+                          key={playlist.id}
+                        />
+                      ))}
                     </VStack>
                   </TabPanel>
                   <TabPanel width="100%">
                     {selectedPlaylists.length > 0 && (
                       <VStack maxHeight="50vh" overflowY="scroll">
-                        <div>
-                          {selectedPlaylists.map((playlistId, index) => {
-                            const playlist = userPlaylists.find(
-                              (playlist) => playlist.id === playlistId
-                            );
-                            return (
-                              <PlaylistGrid
-                                playlist={playlist}
-                                handlePlaylistSelect={togglePlaylistSelection}
-                              />
-                            );
-                          })}
-                        </div>
+                        {selectedPlaylists.map((playlistId, index) => {
+                          const playlist = userPlaylists.find(
+                            (playlist) => playlist.id === playlistId
+                          );
+                          return (
+                            <PlaylistGrid
+                              playlist={playlist}
+                              handlePlaylistSelect={togglePlaylistSelection}
+                              key={playlist.id}
+                            />
+                          );
+                        })}
                       </VStack>
                     )}
                   </TabPanel>
                   <TabPanel>
                     <Center>
-                      <HStack>
+                      <HStack
+                        width="100%"
+                        justifyContent="space-between"
+                        flexDirection={{
+                          base: "column-reverse", // Reversed order on small screens
+                          md: "row", // Original order on medium screens and larger
+                        }}
+                      >
                         {selectedPlaylists.length > 0 && (
-                          <VStack maxHeight="50vh" overflowY="scroll">
-                            {" "}
-                            {selectedPlaylistTracks.map((track, index) => {
-                              // const playlist = userPlaylists.find((playlist) => playlist.id === playlistId);
-                              return (
-                                <PlaylistGrid
-                                  playlist={track}
-                                  handlePlaylistSelect={nothing}
-                                />
-                              );
-                            })}
-                            {/* </ul> */}
+                          <VStack
+                            className="tracks-container"
+                            width="100%"
+                            maxHeight="50vh"
+                            overflowY="scroll"
+                          >
+                            {selectedPlaylistTracks.map((track, index) => (
+                              <PlaylistGrid
+                                playlist={track}
+                                handlePlaylistSelect={nothing}
+                                key={track.id}
+                              />
+                            ))}
                           </VStack>
                         )}
                         {selectedPlaylists.length > 0 && (

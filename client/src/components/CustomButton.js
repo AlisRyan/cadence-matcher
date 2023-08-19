@@ -13,7 +13,7 @@ const CustomButton = ({ click, label }) => {
       onClick={click}
       _hover={{
         transform: "scale(1.05) ",
-        bgColor: 'black',
+        bgColor: "black",
         opacity: "1",
         color: "white",
         border: "none",
