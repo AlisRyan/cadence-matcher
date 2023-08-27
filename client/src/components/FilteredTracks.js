@@ -30,7 +30,7 @@ const FilteredTracks = ({
 
     const uniqueTrackUris = [
       ...new Set(filteredTracks.map((track) => track.uri)),
-    ]; // Get unique track URIs
+    ]; 
     axios
       .post(
         `https://api.spotify.com/v1/users/${userId}/playlists`,
@@ -45,7 +45,6 @@ const FilteredTracks = ({
       .then((response) => {
         const playlistId = response.data.id;
 
-        // Add unique tracks to the created playlist
         axios.post(
           `https://api.spotify.com/v1/playlists/${playlistId}/tracks`,
           {
@@ -56,9 +55,8 @@ const FilteredTracks = ({
           }
         );
 
-        // Clear the playlist name and checkbox after creating the playlist
         setPlaylistName("");
-        setIsPublic(true); // Reset to public
+        setIsPublic(true); 
       })
       .catch((error) => {
         console.error("Error creating playlist:", error);
@@ -82,8 +80,8 @@ const FilteredTracks = ({
               <Heading paddingY="50px">Create Your Playlist!</Heading>
               <HStack
                 flexDirection={{
-                  base: "column-reverse", // Reversed order on small screens
-                  md: "row", // Original order on medium screens and larger
+                  base: "column-reverse", 
+                  md: "row",
                 }}
               >
                 <VStack>

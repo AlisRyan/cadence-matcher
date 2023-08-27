@@ -28,11 +28,7 @@ const Search = ({
 }) => {
   const [selectedPlaylists, setSelectedPlaylists] = useState([]);
   const [energyRange, setEnergyRange] = useState({ min: 0, max: 10 });
-  const [danceabilityRange, setDanceabilityRange] = useState({
-    min: 0,
-    max: 10,
-  });
-
+  const [danceabilityRange, setDanceabilityRange] = useState({ min: 0, max: 10 });
   const [tempoRange, setTempoRange] = useState({ min: 0, max: 200 });
   const [valenceRange, setValenceRange] = useState({ min: 0, max: 10 });
 
@@ -54,7 +50,6 @@ const Search = ({
       handlePlaylistSelect(playlistId);
     }
 
-    // Remove or add the selected playlist from the filteredPlaylists
     setFilteredPlaylists((prevFilteredPlaylists) =>
       prevFilteredPlaylists.filter((playlist) => playlist.id !== playlistId)
     );
@@ -72,7 +67,6 @@ const Search = ({
   };
 
   const handleContinue = () => {
-    // Fetch audio features for all selected tracks
     const fetchAudioFeaturesPromises = selectedPlaylistTracks.map((track) =>
       axios.get(`https://api.spotify.com/v1/audio-features/${track.id}`, {
         headers: { Authorization: `Bearer ${accessToken}` },
@@ -80,10 +74,8 @@ const Search = ({
     );
     Promise.all(fetchAudioFeaturesPromises)
       .then((responses) => {
-        // Extract the audio features data from the responses
         const audioFeatures = responses.map((response) => response.data);
 
-        // Filter selected tracks based on energy, danceability, and tempo ranges here
         const filteredTracks = selectedPlaylistTracks.filter((track, index) => {
           const { energy, danceability, tempo, valence } = audioFeatures[index];
           return (
@@ -102,10 +94,8 @@ const Search = ({
 
         console.log("Filtered tracks:", filteredTracks);
 
-        // Set the filtered tracks to the state in the parent component (SpotifyApp.js)
         setFilteredTracks(filteredTracks);
 
-        // Navigate to the FilteredTracks page
         navigate("/filtered", {
           state: {
             filteredTracks: filteredTracks,
@@ -195,8 +185,8 @@ const Search = ({
                         width="100%"
                         justifyContent="space-between"
                         flexDirection={{
-                          base: "column-reverse", // Reversed order on small screens
-                          md: "row", // Original order on medium screens and larger
+                          base: "column-reverse", 
+                          md: "row",
                         }}
                       >
                         {selectedPlaylists.length > 0 && (

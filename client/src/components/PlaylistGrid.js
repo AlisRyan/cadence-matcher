@@ -25,8 +25,8 @@ const PlaylistGrid = ({ playlist, handlePlaylistSelect }) => {
     >
       {playlist.coverUrl && (
         <Image
-          width="50px"
-          height="50px"
+          width="70px"
+          height="70px"
           objectFit="cover"
           marginLeft="20px"
           src={playlist.coverUrl}
@@ -37,8 +37,8 @@ const PlaylistGrid = ({ playlist, handlePlaylistSelect }) => {
       <Box marginLeft="auto" paddingRight="20px">
         <Link href={playlist.link} target="_blank" rel="noopener noreferrer">
           <Image
-            height="50px"
-            width="50px"
+            height="70x"
+            width="70px"
             className="spotify-logo"
             src={spotifyLogo}
             alt="Spotify Logo"

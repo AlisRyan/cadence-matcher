@@ -13,22 +13,19 @@ const SpotifyApp = () => {
   const [selectedPlaylistTracks, setSelectedPlaylistTracks] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedPlaylists, setSelectedPlaylists] = useState([]);
-  const spotifyClientId = "CLIENT_ID"; // Replace with your Spotify Client ID
-  const [filteredTracks, setFilteredTracks] = useState([]); // Create a state to store the filtered tracks
-  const [userId, setUserId] = useState(null); // State to store user ID
+  const spotifyClientId = "82bc8c4840c346be96af9656e29dbc59"; // Replace with your Spotify Client ID
+  const [filteredTracks, setFilteredTracks] = useState([]); 
+  const [userId, setUserId] = useState(null); 
 
   useEffect(() => {
-    // Check if there's a Spotify access token in the URL
     const params = new URLSearchParams(window.location.hash.replace("#", ""));
     const accessToken = params.get("access_token");
 
     if (accessToken) {
       setAccessToken(accessToken);
 
-      // Fetch user's ID
       getUserId(accessToken);
 
-      // Fetch user's playlists
       getPlaylists(accessToken);
     }
   }, []);
@@ -47,7 +44,6 @@ const SpotifyApp = () => {
   };
 
   const handlePlaylistSelect = (playlistId) => {
-    // Check if the playlistId is already selected
     if (selectedPlaylists.includes(playlistId)) {
       setSelectedPlaylists((prevSelectedPlaylists) =>
         prevSelectedPlaylists.filter((id) => id !== playlistId)
@@ -93,7 +89,6 @@ const SpotifyApp = () => {
           link: playlist.external_urls.spotify,
         }));
 
-        // Fetch the user's liked songs playlist separately
         if (url === "https://api.spotify.com/v1/me/playlists") {
           axios
             .get("https://api.spotify.com/v1/me/tracks", {
@@ -101,11 +96,11 @@ const SpotifyApp = () => {
             })
             .then((response) => {
               const likedSongsPlaylist = {
-                id: "liked_songs", // A unique ID to represent the liked songs playlist
-                name: "Liked Songs", // Name for display
-                coverUrl: null, // You can add a cover image URL if you have one
+                id: "liked_songs", 
+                name: "Liked Songs", 
+                coverUrl: null, 
               };
-              playlists.unshift(likedSongsPlaylist); // Add the liked songs playlist at the beginning
+              playlists.unshift(likedSongsPlaylist); 
             })
             .catch((error) => {
               console.error("Error fetching liked songs:", error);
@@ -113,7 +108,6 @@ const SpotifyApp = () => {
         }
 
         setUserPlaylists((prevPlaylists) => {
-          // Filter out playlists that are already in the state
           const newPlaylists = playlists.filter(
             (playlist) =>
               !prevPlaylists.some(
@@ -123,7 +117,6 @@ const SpotifyApp = () => {
           return [...prevPlaylists, ...newPlaylists];
         });
 
-        // Check for pagination
         if (response.data.next) {
           getPlaylists(token, response.data.next);
         }
@@ -135,7 +128,6 @@ const SpotifyApp = () => {
 
   const getPlaylistTracks = (playlistId, callback) => {
     if (playlistId === "liked_songs") {
-      // Special case for the user's liked songs playlist
       axios
         .get("https://api.spotify.com/v1/me/tracks", {
           headers: { Authorization: `Bearer ${accessToken}` },
@@ -154,10 +146,9 @@ const SpotifyApp = () => {
         })
         .catch((error) => {
           console.error("Error fetching liked songs:", error);
-          callback([]); // Return an empty array in case of an error
+          callback([]); 
         });
     } else {
-      // Fetch tracks for regular playlists
       axios
         .get(`https://api.spotify.com/v1/playlists/${playlistId}/tracks`, {
           headers: { Authorization: `Bearer ${accessToken}` },
@@ -176,7 +167,7 @@ const SpotifyApp = () => {
         })
         .catch((error) => {
           console.error("Error fetching playlist tracks:", error);
-          callback([]); // Return an empty array in case of an error
+          callback([]); 
         });
     }
   };
@@ -195,7 +186,7 @@ const SpotifyApp = () => {
   };
 
   const handleLogout = () => {
-    setAccessToken(null); // Clear the access token
+    setAccessToken(null); 
   };
 
   return (
