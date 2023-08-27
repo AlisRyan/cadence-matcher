@@ -13,7 +13,7 @@ const SpotifyApp = () => {
   const [selectedPlaylistTracks, setSelectedPlaylistTracks] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedPlaylists, setSelectedPlaylists] = useState([]);
-  const spotifyClientId = "82bc8c4840c346be96af9656e29dbc59"; // Replace with your Spotify Client ID
+  const spotifyClientId = "CLIENT_ID"; // Replace with your Spotify Client ID
   const [filteredTracks, setFilteredTracks] = useState([]); 
   const [userId, setUserId] = useState(null); 
 
