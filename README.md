@@ -2,6 +2,8 @@
 
 Cadence Matcher is a web application that leverages the Spotify Web API, React.js, JavaScript, HTML, and CSS to revolutionize your running experience. With Cadence Matcher, you can craft the perfect running playlist tailored to your preferences. Select your favorite playlists, specify your desired energy, danceability, and happiness levels, and set your ideal tempo. Cadence Matcher will curate a playlist that matches your running tempo and add it to your Spotify library.
 
+Try it out [here](https://cadence-matcher.netlify.app).
+
 ## Features
 
 - **Playlist Customization**: Choose from your Spotify playlists and customize your playlist based on energy, danceability, and happiness preferences.
